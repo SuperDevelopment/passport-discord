@@ -1,13 +1,14 @@
-# passport-discord
+> # **NOTICE!**
+> This repository is a continued fork of [nicholastay/passport-discord](https://github.com/nicholastay/passport-discord) since the original author (Nicholas Tay) is no longer maintaning it.
 
-**Notice**: I'm no longer too active with the Discord API, and only tinker around occasionally. So, if there is anybody who would like to be more active in maintaining, I'm happy to link to your fork as the new solution to use or give project permissions on this repo.
+# passport-discord
 
 Passport strategy for authentication with [Discord](http://discordapp.com) through the OAuth 2.0 API.
 
-Before using this strategy, it is strongly recommended that you read through the official docs page [here](https://discord.com/developers/docs/topics/oauth2), especially about the scopes and understand how the auth works.
+Before using this strategy, we recommend for you read through the official docs page [here](https://discord.com/developers/docs/topics/oauth2), especially about the scopes and understand how the auth works.
 
-## Usage
-`npm install passport-discord --save`
+## Install
+`npm install github:SuperDevelopment/passport-discord --save`
 
 #### Configure Strategy
 The Discord authentication strategy authenticates users via a Discord user account and OAuth 2.0 token(s). A Discord API client ID, secret and redirect URL must be supplied when using this strategy. The strategy also requires a `verify` callback, which receives the access token and an optional refresh token, as well as a `profile` which contains the authenticated Discord user's profile. The `verify` callback must also call `cb` providing a user to complete the authentication.
@@ -18,9 +19,9 @@ var DiscordStrategy = require('passport-discord').Strategy;
 var scopes = ['identify', 'email', 'guilds', 'guilds.join'];
 
 passport.use(new DiscordStrategy({
-    clientID: 'id',
-    clientSecret: 'secret',
-    callbackURL: 'callbackURL',
+    clientID: 'id', // https://discord.com/developers
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: process.env.CALLBACK, // example.com/auth/discord/callback
     scope: scopes
 },
 function(accessToken, refreshToken, profile, cb) {
@@ -36,11 +37,13 @@ Use `passport.authenticate()`, and specify the `'discord'` strategy to authentic
 For example, as a route middleware in an Express app:
 
 ```javascript
-app.get('/auth/discord', passport.authenticate('discord'));
-app.get('/auth/discord/callback', passport.authenticate('discord', {
+app.get('/auth/discord', passport.authenticate('discord')); // this will redirect to the authorize page
+app.get('/auth/discord/callback', passport.authenticate('discord', { // this will process the code
     failureRedirect: '/'
 }), function(req, res) {
-    res.redirect('/secretstuff') // Successful auth
+    // successful authentication
+    // ...
+    // try: saving data to a database, etc.
 });
 ```
 
@@ -64,8 +67,8 @@ var DiscordStrategy = require('passport-discord').Strategy
 
 var discordStrat = new DiscordStrategy({
     clientID: 'id',
-    clientSecret: 'secret',
-    callbackURL: 'callbackURL'
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: process.env.CALLBACK, // example.com/auth/discord/callback
 },
 function(accessToken, refreshToken, profile, cb) {
     profile.refreshToken = refreshToken; // store this for later refreshes
@@ -86,9 +89,9 @@ refresh.use(discordStrat);
 ```javascript
 refresh.requestNewAccessToken('discord', profile.refreshToken, function(err, accessToken, refreshToken) {
     if (err)
-        throw; // boys, we have an error here.
+        throw; // unsuccesful request
     
-    profile.accessToken = accessToken; // store this new one for our new requests!
+    profile.accessToken = accessToken; // new access token, store this.
 });
 ```
 
@@ -97,6 +100,7 @@ refresh.requestNewAccessToken('discord', profile.refreshToken, function(err, acc
 An Express server example can be found in the `/example` directory. Be sure to `npm install` in that directory to get the dependencies.
 
 ## Credits
+* Nicholas Tay - original developer of passport-discord
 * Jared Hanson - used passport-github to understand passport more and kind of as a base.
 
 ## License
